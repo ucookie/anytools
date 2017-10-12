@@ -7,6 +7,8 @@ Readme:
          验证输出使用 print json.dumps(obj=ret, indent=4, sort_keys=True)
 """
 
+import re
+
 
 class KeepalivedCtl(object):
 
@@ -45,6 +47,16 @@ class KeepalivedCtl(object):
         conf_dict['global_defs'] = global_defs_info
         conf_dict['vrrp_instance'] = vrrp_instance_info
 
+        virtual_server = []
+
+        # 读取 keepalived.conf 文件,获取
+        config = cls._conf_lines
+        for index, item in enumerate(config):
+            if item.find("virtual_server") != -1:
+                reobj = re.search(r"^virtual_server\s*(\d+.\d+.\d+.\d+)\s*(\d+)", item)
+                if reobj is not None:
+                    virtual_server.append((reobj.group(1), int(reobj.group(2))))
+        conf_dict['virtual_server'] = virtual_server
         return conf_dict
 
     # ====================================================================
